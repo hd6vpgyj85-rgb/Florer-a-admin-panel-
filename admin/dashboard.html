@@ -16,6 +16,7 @@
     <nav class="admin-nav">
       <button type="button" data-panel="colecciones" class="is-active">Colecciones</button>
       <button type="button" data-panel="productos">Productos</button>
+      <button type="button" data-panel="galeria">Galería</button>
     </nav>
     <div class="admin-logout">
       <button type="button" id="logout-btn" class="btn btn-outline btn-block" style="border-color: rgba(255,255,255,0.3); color: var(--color-cream);">
@@ -164,6 +165,28 @@
         </div>
       </div>
     </section>
+
+    <!-- ===================== PANEL: GALERÍA ===================== -->
+    <section class="admin-panel" id="panel-galeria">
+      <div class="panel-head">
+        <h2>Galería</h2>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-2);">Imágenes de la galería</h3>
+        <p class="hint" style="margin-bottom: var(--space-4);">
+          Estas imágenes aparecen en la sección "Galería" de la página principal. Súbelas directamente, sin necesidad de asociarlas a un producto.
+        </p>
+        <button type="button" class="btn btn-outline btn-sm" id="cloudinary-galeria-btn">Subir imágenes</button>
+        <p class="hint" id="cloudinary-galeria-hint"></p>
+
+        <div class="admin-products-scroll-wrap" style="margin-top: var(--space-4);">
+          <div class="admin-products-scroll" id="galeria-scroll">
+            <span class="loader"></span>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -174,11 +197,13 @@
 <script src="../js/auth.js"></script>
 <script src="../js/colecciones.js"></script>
 <script src="../js/productos.js"></script>
+<script src="../js/galeria.js"></script>
 <script src="../js/whatsapp.js"></script>
 <script>
 (function () {
   let colecciones = [];
   let productos = [];
+  let galeriaImagenes = [];
   let editingCollectionId = null;
   let editingProductId = null;
   let imagenesActuales = [];
@@ -190,7 +215,7 @@
     const session = await window.Auth.requireAuth("index.html");
     if (!session) return;
     $("admin-user-email").textContent = session.user.email || "";
-    await Promise.all([cargarColecciones(), cargarProductos()]);
+    await Promise.all([cargarColecciones(), cargarProductos(), cargarGaleria()]);
   })();
 
   $("logout-btn").addEventListener("click", async () => {
@@ -527,6 +552,88 @@
   $("cloudinary-upload-btn").addEventListener("click", () => {
     if (widget) {
       widget.open();
+    } else {
+      alert("Cloudinary no está configurado. Completa js/config.js.");
+    }
+  });
+
+  /* ================================================================ Galería */
+  async function cargarGaleria() {
+    try {
+      galeriaImagenes = await window.Galeria.listarTodas();
+      renderGaleriaScroll();
+    } catch (err) {
+      console.error(err);
+      $("galeria-scroll").innerHTML =
+        '<div class="empty-state">Error al cargar la galería. Verifica js/config.js y la conexión a Supabase.</div>';
+    }
+  }
+
+  function renderGaleriaScroll() {
+    const wrap = $("galeria-scroll");
+    if (!galeriaImagenes.length) {
+      wrap.innerHTML = '<div class="empty-state">Aún no hay imágenes en la galería.</div>';
+      return;
+    }
+    wrap.innerHTML = galeriaImagenes
+      .map(
+        (img) => `
+      <div class="admin-product-card" data-id="${img.id}">
+        <button type="button" class="admin-product-card-delete" data-action="eliminar-galeria" aria-label="Eliminar imagen">&times;</button>
+        <div class="admin-product-card-media">
+          <img src="${escapeHtml(img.url)}" alt="" loading="lazy" />
+        </div>
+      </div>`
+      )
+      .join("");
+  }
+
+  $("galeria-scroll").addEventListener("click", async (event) => {
+    const deleteBtn = event.target.closest('[data-action="eliminar-galeria"]');
+    if (!deleteBtn) return;
+    const card = deleteBtn.closest(".admin-product-card");
+    const id = card.dataset.id;
+    if (!confirm("¿Eliminar esta imagen de la galería? Esta acción no se puede deshacer.")) return;
+    deleteBtn.disabled = true;
+    try {
+      await window.Galeria.eliminar(id);
+      await cargarGaleria();
+    } catch (err) {
+      alert("No se pudo eliminar: " + err.message);
+    }
+  });
+
+  let widgetGaleria = null;
+
+  if (cfg.CLOUDINARY_CLOUD_NAME && cfg.CLOUDINARY_UPLOAD_PRESET && window.cloudinary) {
+    widgetGaleria = window.cloudinary.createUploadWidget(
+      {
+        cloudName: cfg.CLOUDINARY_CLOUD_NAME,
+        uploadPreset: cfg.CLOUDINARY_UPLOAD_PRESET,
+        multiple: true,
+        sources: ["local", "url", "camera"],
+        maxFiles: 8,
+      },
+      (error, result) => {
+        if (error) {
+          console.error("[cloudinary galería]", error);
+          return;
+        }
+        if (result && result.event === "success") {
+          window.Galeria.agregar(result.info.secure_url)
+            .then(() => cargarGaleria())
+            .catch((err) => alert("No se pudo guardar la imagen: " + err.message));
+        }
+      }
+    );
+  } else {
+    $("cloudinary-galeria-hint").textContent =
+      "Configura CLOUDINARY_CLOUD_NAME y CLOUDINARY_UPLOAD_PRESET en js/config.js para habilitar la subida de imágenes.";
+  }
+
+  $("cloudinary-galeria-btn").addEventListener("click", () => {
+    if (widgetGaleria) {
+      widgetGaleria.open();
     } else {
       alert("Cloudinary no está configurado. Completa js/config.js.");
     }

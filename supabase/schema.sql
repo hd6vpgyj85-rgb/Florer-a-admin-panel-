@@ -56,12 +56,27 @@ create table if not exists public.orders (
 create index if not exists orders_producto_id_idx on public.orders(producto_id);
 
 -- ============================================================================
+-- Tabla: gallery_images
+-- ============================================================================
+-- Imágenes sueltas (no ligadas a un producto) que el admin sube desde el
+-- panel para mostrarse en la sección "Galería" de la página principal.
+create table if not exists public.gallery_images (
+  id uuid primary key default gen_random_uuid(),
+  url text not null,
+  orden integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists gallery_images_orden_idx on public.gallery_images(orden);
+
+-- ============================================================================
 -- Row Level Security
 -- ============================================================================
 
 alter table public.collections enable row level security;
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
+alter table public.gallery_images enable row level security;
 
 -- --- collections: lectura pública, escritura solo autenticados -------------
 
@@ -134,3 +149,23 @@ create policy "orders_select_auth"
 -- Nota: no se crean políticas de update/delete para orders. Solo el rol
 -- "service_role" (usado desde el backend/Supabase Studio) puede modificarlas
 -- por defecto, ya que ese rol ignora RLS.
+
+-- --- gallery_images: lectura pública, escritura solo autenticados -----------
+
+drop policy if exists "gallery_images_select_public" on public.gallery_images;
+create policy "gallery_images_select_public"
+  on public.gallery_images for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists "gallery_images_insert_auth" on public.gallery_images;
+create policy "gallery_images_insert_auth"
+  on public.gallery_images for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "gallery_images_delete_auth" on public.gallery_images;
+create policy "gallery_images_delete_auth"
+  on public.gallery_images for delete
+  to authenticated
+  using (true);

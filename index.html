@@ -53,8 +53,8 @@
   </div>
 </section>
 
-<!-- ============================================================ GALERÍA -->
-<section class="section" id="galeria">
+<!-- ==================================================== ARREGLOS RECIENTES -->
+<section class="section" id="arreglos-recientes">
   <div class="container">
     <div class="section-head">
       <span class="eyebrow">Nuestro trabajo</span>
@@ -65,6 +65,20 @@
   <div class="gallery-track-wrap">
     <div class="gallery-track" id="gallery-track">
       <div class="gallery-card"><div class="loader" style="margin: 150px auto;"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ GALERÍA -->
+<section class="section section--alt" id="galeria">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Momentos</span>
+      <h2>Galería</h2>
+      <p>Un vistazo a nuestro taller, entregas y arreglos favoritos.</p>
+    </div>
+    <div class="masonry-gallery" id="masonry-gallery">
+      <div class="empty-state"><span class="loader"></span></div>
     </div>
   </div>
 </section>
@@ -146,11 +160,17 @@
   </div>
 </footer>
 
+<div class="lightbox-backdrop" id="lightbox">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Cerrar imagen">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/colecciones.js"></script>
 <script src="js/productos.js"></script>
+<script src="js/galeria.js"></script>
 <script src="js/whatsapp.js"></script>
 <script>
 (function () {
@@ -245,6 +265,62 @@
     }
   }
 
+  /* --------------------------------------------------- Galería (fotos) */
+  const MAX_GALERIA_FOTOS = 24;
+
+  async function cargarGaleriaFotos() {
+    const grid = document.getElementById("masonry-gallery");
+    try {
+      const imagenes = await window.Galeria.listarTodas();
+      if (!imagenes.length) {
+        grid.innerHTML =
+          '<p style="text-align: center; color: var(--color-text-muted);">Pronto compartiremos más fotos aquí.</p>';
+        return;
+      }
+      grid.innerHTML = imagenes
+        .slice(0, MAX_GALERIA_FOTOS)
+        .map(
+          (img) => `
+        <div class="masonry-item">
+          <img src="${escapeHtml(img.url)}" alt="Galería net.ly" loading="lazy" />
+        </div>`
+        )
+        .join("");
+    } catch (err) {
+      console.error("[index] error cargando galería de fotos:", err);
+      grid.innerHTML =
+        '<p style="text-align: center; color: var(--color-text-muted);">No se pudo cargar la galería.</p>';
+    }
+  }
+
+  /* ------------------------------------------------------------ Lightbox */
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+
+  function abrirLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "";
+    lightbox.classList.add("is-open");
+  }
+
+  function cerrarLightbox() {
+    lightbox.classList.remove("is-open");
+    lightboxImg.src = "";
+  }
+
+  document.getElementById("masonry-gallery").addEventListener("click", (event) => {
+    const img = event.target.closest(".masonry-item img");
+    if (img) abrirLightbox(img.src, img.alt);
+  });
+
+  document.getElementById("lightbox-close").addEventListener("click", cerrarLightbox);
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) cerrarLightbox();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") cerrarLightbox();
+  });
+
   /* --------------------------------------------------------- Cotizar */
   document.getElementById("cotizar-form").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -267,6 +343,7 @@
 
   cargarColeccionesNav();
   cargarGaleria();
+  cargarGaleriaFotos();
 })();
 </script>
 </body>
