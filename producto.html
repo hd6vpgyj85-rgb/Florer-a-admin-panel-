@@ -73,6 +73,11 @@
   </div>
 </footer>
 
+<div class="lightbox-backdrop" id="lightbox">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Cerrar imagen">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
@@ -222,6 +227,34 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
+
+  /* --------------------------------------------------------- Lightbox */
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+
+  function abrirLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "";
+    lightbox.classList.add("is-open");
+  }
+
+  function cerrarLightbox() {
+    lightbox.classList.remove("is-open");
+    lightboxImg.src = "";
+  }
+
+  document.getElementById("producto-contenido").addEventListener("click", (event) => {
+    const img = event.target.closest("#imagen-principal");
+    if (img) abrirLightbox(img.src, img.alt);
+  });
+
+  document.getElementById("lightbox-close").addEventListener("click", cerrarLightbox);
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) cerrarLightbox();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") cerrarLightbox();
+  });
 
   cargarColeccionesNav();
   cargarProducto();
