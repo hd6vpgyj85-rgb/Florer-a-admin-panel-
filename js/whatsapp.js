@@ -20,7 +20,11 @@ window.WhatsApp = (function () {
 
   function abrir(mensaje) {
     const url = construirEnlace(mensaje);
-    window.open(url, "_blank", "noopener");
+    // Se navega en la misma pestaña (en vez de window.open) porque los
+    // navegadores móviles bloquean window.open cuando se llama después de un
+    // await (ej. tras guardar el pedido en Supabase), al perderse el
+    // contexto de "gesto del usuario" que exige el bloqueador de popups.
+    window.location.href = url;
   }
 
   function mensajeCotizacion({ nombre, telefono, descripcion }) {

@@ -215,11 +215,13 @@
   }
 
   /* --------------------------------------------------------- Galería */
+  const MAX_GALERIA = 6;
+
   async function cargarGaleria() {
     const track = document.getElementById("gallery-track");
     try {
       const productos = await window.Productos.listarActivos();
-      const conImagen = productos.filter((p) => p.imagenes && p.imagenes.length);
+      const conImagen = productos.filter((p) => p.imagenes && p.imagenes.length).slice(0, MAX_GALERIA);
       if (!conImagen.length) {
         track.innerHTML = '<p style="padding: 0 var(--space-4); color: var(--color-text-muted);">Pronto compartiremos fotos de nuestros arreglos.</p>';
         return;
@@ -233,8 +235,10 @@
         </figure>`
         )
         .join("");
-      // Se duplica el contenido para lograr el loop infinito con translateX(-50%)
-      track.innerHTML = cards + cards;
+      // En pantallas táctiles el scroll es manual (sin animación), así que no hace
+      // falta duplicar el contenido; en desktop se duplica para el loop infinito.
+      const esTactil = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+      track.innerHTML = esTactil ? cards : cards + cards;
     } catch (err) {
       console.error("[index] error cargando galería:", err);
       track.innerHTML = '<p style="padding: 0 var(--space-4); color: var(--color-text-muted);">No se pudo cargar la galería.</p>';
