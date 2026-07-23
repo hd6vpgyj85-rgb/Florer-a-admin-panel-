@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finalizar pedido — Florería net.ly</title>
+<link rel="stylesheet" href="css/global.css" />
+</head>
+<body>
+
+<!-- ============================================================= HEADER -->
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">net.ly</a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="main-nav">
+      <div class="main-nav-inner">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li class="nav-dropdown" id="nav-dropdown">
+            <button type="button" class="nav-dropdown-toggle" id="nav-dropdown-toggle">
+              Colecciones <span class="chevron" aria-hidden="true">&#9662;</span>
+            </button>
+            <div class="nav-dropdown-panel">
+              <div class="nav-dropdown-panel-inner" id="nav-collections-panel">
+                <a href="catalogo.html">Ver todo el catálogo</a>
+              </div>
+            </div>
+          </li>
+          <li><a href="index.html#cotizar">Cotizar ramo</a></li>
+          <li><a href="index.html#ubicacion">Ubicación</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================ CHECKOUT -->
+<section class="section">
+  <div class="container">
+    <div class="grid checkout-layout">
+      <div>
+        <div class="section-head" style="text-align: left; margin-bottom: var(--space-5); max-width: none;">
+          <span class="eyebrow">Finalizar pedido</span>
+          <h2>Completa tus datos</h2>
+        </div>
+
+        <div id="checkout-resumen">
+          <div class="empty-state"><span class="loader"></span></div>
+        </div>
+
+        <div id="checkout-error" class="form-message is-error" style="display: none;"></div>
+
+        <form id="checkout-form" style="display: none;" novalidate>
+          <div class="form-field">
+            <label for="nombre-completo">Nombre completo</label>
+            <input type="text" id="nombre-completo" required />
+          </div>
+          <div class="form-field">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" required />
+          </div>
+
+          <div class="form-field">
+            <label>Tipo de entrega</label>
+            <div class="radio-group">
+              <label class="radio-option" data-value="envio">
+                <input type="radio" name="tipo-entrega" value="envio" required />
+                Envío a domicilio
+              </label>
+              <label class="radio-option" data-value="recoger">
+                <input type="radio" name="tipo-entrega" value="recoger" />
+                Recoger en tienda
+              </label>
+              <label class="radio-option" data-value="punto_medio">
+                <input type="radio" name="tipo-entrega" value="punto_medio" />
+                Punto medio
+              </label>
+            </div>
+          </div>
+
+          <div class="form-field" id="direccion-field" style="display: none;">
+            <label for="direccion" id="direccion-label">Dirección</label>
+            <textarea id="direccion"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="checkout-submit-btn">
+            Confirmar pedido por WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="grid footer-grid">
+      <div>
+        <h4>net.ly</h4>
+        <p>Flores frescas y arreglos hechos a mano para cada momento especial.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>+52 656 8596503</p>
+        <p>iygd505@gmail.com</p>
+      </div>
+      <div>
+        <h4>Síguenos</h4>
+        <div class="social-links" id="social-links"></div>
+      </div>
+    </div>
+    <p class="footer-bottom">
+      © <span id="current-year"></span> net.ly. Todos los derechos reservados. ·
+      <a href="admin/index.html">Admin</a>
+    </p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/colecciones.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/whatsapp.js"></script>
+<script>
+(function () {
+  const cfg = window.APP_CONFIG || {};
+  document.getElementById("current-year").textContent = new Date().getFullYear();
+
+  const socialLinks = document.getElementById("social-links");
+  const redes = [
+    { url: cfg.SOCIAL_INSTAGRAM, label: "Instagram", icon: "IG" },
+    { url: cfg.SOCIAL_FACEBOOK, label: "Facebook", icon: "FB" },
+    { url: cfg.SOCIAL_TIKTOK, label: "TikTok", icon: "TT" },
+  ].filter((r) => r.url);
+  socialLinks.innerHTML = redes
+    .map((r) => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" aria-label="${r.label}">${r.icon}</a>`)
+    .join("");
+
+  /* ----------------------------------------------------------------- Nav */
+  const navToggle = document.getElementById("nav-toggle");
+  const mainNav = document.getElementById("main-nav");
+
+  function setNavOpen(open) {
+    mainNav.classList.toggle("is-open", open);
+    navToggle.classList.toggle("is-active", open);
+    navToggle.setAttribute("aria-expanded", String(open));
+  }
+
+  navToggle.addEventListener("click", () => {
+    setNavOpen(!mainNav.classList.contains("is-open"));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!mainNav.classList.contains("is-open")) return;
+    if (mainNav.contains(event.target) || navToggle.contains(event.target)) return;
+    setNavOpen(false);
+  });
+
+  const navDropdown = document.getElementById("nav-dropdown");
+  document.getElementById("nav-dropdown-toggle").addEventListener("click", () => {
+    navDropdown.classList.toggle("is-open");
+  });
+
+  async function cargarColeccionesNav() {
+    const panel = document.getElementById("nav-collections-panel");
+    try {
+      const activas = await window.Colecciones.listarActivas();
+      if (!activas.length) return;
+      const links = activas
+        .map((c) => `<a href="catalogo.html?coleccion=${encodeURIComponent(c.slug)}">${escapeHtml(c.nombre)}</a>`)
+        .join("");
+      panel.innerHTML = links + panel.innerHTML;
+    } catch (err) {
+      console.error("[checkout] error cargando colecciones (nav):", err);
+    }
+  }
+
+  /* ------------------------------------------------------------- Estado */
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  let producto = null;
+
+  function renderResumen() {
+    const wrap = document.getElementById("checkout-resumen");
+    const img = (producto.imagenes && producto.imagenes[0]) || "";
+    wrap.innerHTML = `
+      <div class="checkout-summary">
+        ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(producto.nombre)}" />` : ""}
+        <div>
+          <h3 style="margin-bottom: var(--space-1);">${escapeHtml(producto.nombre)}</h3>
+          <span class="product-card-price">${window.WhatsApp.formatearPrecio(producto.precio)}</span>
+        </div>
+      </div>`;
+    document.getElementById("checkout-form").style.display = "block";
+  }
+
+  async function cargarProducto() {
+    const errorBox = document.getElementById("checkout-error");
+    if (!id) {
+      document.getElementById("checkout-resumen").innerHTML =
+        '<div class="empty-state">No se especificó ningún producto.</div>';
+      return;
+    }
+    try {
+      producto = await window.Productos.obtenerPorId(id);
+      if (!producto) {
+        document.getElementById("checkout-resumen").innerHTML =
+          '<div class="empty-state">Este producto no existe o ya no está disponible.</div>';
+        return;
+      }
+      if (producto.stock <= 0) {
+        document.getElementById("checkout-resumen").innerHTML =
+          '<div class="empty-state">Este producto está agotado.</div>';
+        renderResumenAgotado();
+        return;
+      }
+      renderResumen();
+    } catch (err) {
+      console.error("[checkout] error cargando producto:", err);
+      errorBox.textContent = "No se pudo cargar el producto. Verifica js/config.js y la conexión a Supabase.";
+      errorBox.style.display = "block";
+    }
+  }
+
+  function renderResumenAgotado() {
+    document.getElementById("checkout-form").style.display = "none";
+  }
+
+  /* ------------------------------------------------------- Tipo de entrega */
+  const direccionField = document.getElementById("direccion-field");
+  const direccionLabel = document.getElementById("direccion-label");
+  const direccionInput = document.getElementById("direccion");
+
+  document.querySelectorAll('input[name="tipo-entrega"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      document.querySelectorAll(".radio-option").forEach((opt) => opt.classList.remove("is-selected"));
+      radio.closest(".radio-option").classList.add("is-selected");
+
+      if (radio.value === "envio") {
+        direccionField.style.display = "flex";
+        direccionLabel.textContent = "Dirección de envío";
+        direccionInput.required = true;
+      } else if (radio.value === "punto_medio") {
+        direccionField.style.display = "flex";
+        direccionLabel.textContent = "Punto de encuentro";
+        direccionInput.required = true;
+      } else {
+        direccionField.style.display = "none";
+        direccionInput.required = false;
+        direccionInput.value = "";
+      }
+    });
+  });
+
+  /* -------------------------------------------------------------- Submit */
+  document.getElementById("checkout-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const errorBox = document.getElementById("checkout-error");
+    errorBox.style.display = "none";
+
+    const nombreCliente = document.getElementById("nombre-completo").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const tipoEntregaEl = document.querySelector('input[name="tipo-entrega"]:checked');
+    const direccion = direccionInput.value.trim();
+
+    if (!nombreCliente || !telefono || !tipoEntregaEl) return;
+    const tipoEntrega = tipoEntregaEl.value;
+    if (tipoEntrega !== "recoger" && !direccion) return;
+
+    const btn = document.getElementById("checkout-submit-btn");
+    btn.disabled = true;
+    btn.textContent = "Procesando...";
+
+    try {
+      const sb = window.getSupabase();
+      const { error } = await sb.from("orders").insert([
+        {
+          nombre_cliente: nombreCliente,
+          telefono,
+          tipo_entrega: tipoEntrega,
+          direccion: tipoEntrega === "recoger" ? null : direccion,
+          producto_id: producto.id,
+          producto_nombre: producto.nombre,
+          precio: producto.precio,
+        },
+      ]);
+      if (error) throw error;
+
+      const mensaje = window.WhatsApp.mensajeCheckout({
+        productoNombre: producto.nombre,
+        precio: producto.precio,
+        nombreCliente,
+        telefono,
+        tipoEntrega,
+        direccion,
+      });
+      window.WhatsApp.abrir(mensaje);
+    } catch (err) {
+      console.error("[checkout] error creando pedido:", err);
+      errorBox.textContent = err.message || "No se pudo registrar el pedido. Intenta de nuevo.";
+      errorBox.style.display = "block";
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Confirmar pedido por WhatsApp";
+  });
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  cargarColeccionesNav();
+  cargarProducto();
+})();
+</script>
+</body>
+</html>

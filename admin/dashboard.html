@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel de administración — Florería</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="../css/global.css" />
+</head>
+<body>
+<div class="admin-scrim" id="admin-scrim"></div>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="brand">Florería Admin</div>
+    <nav class="admin-nav">
+      <button type="button" data-panel="colecciones" class="is-active">Colecciones</button>
+      <button type="button" data-panel="productos">Productos</button>
+      <button type="button" data-panel="galeria">Galería</button>
+    </nav>
+    <div class="admin-logout">
+      <button type="button" id="logout-btn" class="btn btn-outline btn-block" style="border-color: rgba(255,255,255,0.3); color: var(--color-cream);">
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <button type="button" class="admin-menu-toggle" id="admin-menu-toggle">Menú</button>
+      <span id="admin-user-email" style="color: var(--color-text-muted); font-size: 0.9rem;"></span>
+    </div>
+
+    <!-- ===================== PANEL: COLECCIONES ===================== -->
+    <section class="admin-panel is-active" id="panel-colecciones">
+      <div class="panel-head">
+        <h2>Colecciones</h2>
+      </div>
+
+      <div class="card">
+        <h3 id="coleccion-form-title">Nueva colección</h3>
+        <div id="coleccion-form-msg" class="form-message is-error" style="display: none; margin-top: var(--space-3);"></div>
+        <form id="coleccion-form" style="margin-top: var(--space-4);">
+          <input type="hidden" id="coleccion-id" />
+          <div class="form-row cols-2">
+            <div class="form-field">
+              <label for="coleccion-nombre">Nombre</label>
+              <input type="text" id="coleccion-nombre" required />
+            </div>
+            <div class="form-field">
+              <label for="coleccion-activa">Estado</label>
+              <select id="coleccion-activa">
+                <option value="true">Activa</option>
+                <option value="false">Inactiva</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex" style="gap: var(--space-3);">
+            <button type="submit" class="btn btn-primary" id="coleccion-submit-btn">Guardar colección</button>
+            <button type="button" class="btn btn-outline" id="coleccion-cancel-btn" style="display: none;">Cancelar edición</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-4);">Todas las colecciones</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Slug</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="colecciones-tbody">
+              <tr><td colspan="4"><span class="loader"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PANEL: PRODUCTOS ===================== -->
+    <section class="admin-panel" id="panel-productos">
+      <div class="panel-head">
+        <h2>Productos</h2>
+      </div>
+
+      <div class="card">
+        <h3 id="producto-form-title">Nuevo producto</h3>
+        <div id="producto-form-msg" class="form-message is-error" style="display: none; margin-top: var(--space-3);"></div>
+        <form id="producto-form" style="margin-top: var(--space-4);">
+          <input type="hidden" id="producto-id" />
+          <div class="form-row cols-2">
+            <div class="form-field">
+              <label for="producto-nombre">Nombre</label>
+              <input type="text" id="producto-nombre" required />
+            </div>
+            <div class="form-field">
+              <label for="producto-marca">Marca</label>
+              <input type="text" id="producto-marca" />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="producto-descripcion">Descripción</label>
+            <textarea id="producto-descripcion"></textarea>
+          </div>
+
+          <div class="form-row cols-2">
+            <div class="form-field">
+              <label for="producto-precio">Precio (MXN)</label>
+              <input type="number" id="producto-precio" min="0" step="0.01" required />
+            </div>
+            <div class="form-field">
+              <label for="producto-stock">Stock</label>
+              <input type="number" id="producto-stock" min="0" step="1" value="0" required />
+            </div>
+          </div>
+
+          <div class="form-row cols-2">
+            <div class="form-field">
+              <label for="producto-coleccion">Colección</label>
+              <select id="producto-coleccion">
+                <option value="">Sin colección</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="producto-etiquetas">Etiquetas (separadas por coma)</label>
+              <input type="text" id="producto-etiquetas" placeholder="rosas, aniversario, premium" />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="producto-activo">Estado</label>
+            <select id="producto-activo">
+              <option value="true">Activo</option>
+              <option value="false">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>Imágenes</label>
+            <button type="button" class="btn btn-outline btn-sm" id="cloudinary-upload-btn">Subir imágenes</button>
+            <p class="hint" id="cloudinary-hint"></p>
+            <div class="thumb-list" id="producto-thumbs"></div>
+          </div>
+
+          <div class="flex" style="gap: var(--space-3); margin-top: var(--space-4);">
+            <button type="submit" class="btn btn-primary" id="producto-submit-btn">Guardar producto</button>
+            <button type="button" class="btn btn-outline" id="producto-cancel-btn" style="display: none;">Cancelar edición</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-2);">Todos los productos</h3>
+        <p class="hint" style="margin-bottom: var(--space-4);">Desliza para ver todos. Click en una tarjeta para editarla.</p>
+        <div class="admin-products-scroll-wrap">
+          <div class="admin-products-scroll" id="productos-scroll">
+            <span class="loader"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== PANEL: GALERÍA ===================== -->
+    <section class="admin-panel" id="panel-galeria">
+      <div class="panel-head">
+        <h2>Galería</h2>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: var(--space-2);">Imágenes de la galería</h3>
+        <p class="hint" style="margin-bottom: var(--space-4);">
+          Estas imágenes aparecen en la sección "Galería" de la página principal. Súbelas directamente, sin necesidad de asociarlas a un producto.
+        </p>
+        <button type="button" class="btn btn-outline btn-sm" id="cloudinary-galeria-btn">Subir imágenes</button>
+        <p class="hint" id="cloudinary-galeria-hint"></p>
+
+        <div class="admin-products-scroll-wrap" style="margin-top: var(--space-4);">
+          <div class="admin-products-scroll" id="galeria-scroll">
+            <span class="loader"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+<script src="../js/config.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/colecciones.js"></script>
+<script src="../js/productos.js"></script>
+<script src="../js/galeria.js"></script>
+<script src="../js/whatsapp.js"></script>
+<script>
+(function () {
+  let colecciones = [];
+  let productos = [];
+  let galeriaImagenes = [];
+  let editingCollectionId = null;
+  let editingProductId = null;
+  let imagenesActuales = [];
+
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------------------------------------------------------------- Auth */
+  (async function init() {
+    const session = await window.Auth.requireAuth("index.html");
+    if (!session) return;
+    $("admin-user-email").textContent = session.user.email || "";
+    await Promise.all([cargarColecciones(), cargarProductos(), cargarGaleria()]);
+  })();
+
+  $("logout-btn").addEventListener("click", async () => {
+    await window.Auth.signOut();
+    window.location.href = "index.html";
+  });
+
+  /* ------------------------------------------------------------- Sidebar */
+  const sidebar = $("admin-sidebar");
+  const scrim = $("admin-scrim");
+
+  $("admin-menu-toggle").addEventListener("click", () => {
+    sidebar.classList.add("is-open");
+    scrim.classList.add("is-open");
+  });
+  scrim.addEventListener("click", () => {
+    sidebar.classList.remove("is-open");
+    scrim.classList.remove("is-open");
+  });
+
+  document.querySelectorAll(".admin-nav button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".admin-nav button").forEach((b) => b.classList.remove("is-active"));
+      document.querySelectorAll(".admin-panel").forEach((p) => p.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      $("panel-" + btn.dataset.panel).classList.add("is-active");
+      sidebar.classList.remove("is-open");
+      scrim.classList.remove("is-open");
+    });
+  });
+
+  /* ============================================================ Colecciones */
+  async function cargarColecciones() {
+    try {
+      colecciones = await window.Colecciones.listarTodas();
+      renderColeccionesTabla();
+      renderColeccionSelect();
+    } catch (err) {
+      console.error(err);
+      $("colecciones-tbody").innerHTML =
+        '<tr><td colspan="4">Error al cargar colecciones. Verifica js/config.js y la conexión a Supabase.</td></tr>';
+    }
+  }
+
+  function renderColeccionesTabla() {
+    const tbody = $("colecciones-tbody");
+    if (!colecciones.length) {
+      tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state">Aún no hay colecciones.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = colecciones
+      .map(
+        (c) => `
+      <tr data-id="${c.id}">
+        <td>${escapeHtml(c.nombre)}</td>
+        <td>${escapeHtml(c.slug)}</td>
+        <td><span class="status-pill ${c.activa ? "on" : "off"}">${c.activa ? "Activa" : "Inactiva"}</span></td>
+        <td class="actions">
+          <button type="button" class="btn btn-sm btn-outline" data-action="editar-coleccion">Editar</button>
+          <button type="button" class="btn btn-sm btn-outline" data-action="toggle-coleccion">${
+            c.activa ? "Desactivar" : "Activar"
+          }</button>
+          <button type="button" class="btn btn-sm btn-danger" data-action="eliminar-coleccion">Eliminar</button>
+        </td>
+      </tr>`
+      )
+      .join("");
+  }
+
+  function renderColeccionSelect() {
+    const select = $("producto-coleccion");
+    const current = select.value;
+    select.innerHTML =
+      '<option value="">Sin colección</option>' +
+      colecciones.map((c) => `<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join("");
+    select.value = current;
+  }
+
+  $("colecciones-tbody").addEventListener("click", async (event) => {
+    const btn = event.target.closest("button[data-action]");
+    if (!btn) return;
+    const row = btn.closest("tr");
+    const id = row.dataset.id;
+    const coleccion = colecciones.find((c) => c.id === id);
+    if (!coleccion) return;
+
+    if (btn.dataset.action === "editar-coleccion") {
+      editingCollectionId = id;
+      $("coleccion-id").value = id;
+      $("coleccion-nombre").value = coleccion.nombre;
+      $("coleccion-activa").value = String(coleccion.activa);
+      $("coleccion-form-title").textContent = "Editar colección";
+      $("coleccion-submit-btn").textContent = "Actualizar colección";
+      $("coleccion-cancel-btn").style.display = "inline-flex";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    if (btn.dataset.action === "toggle-coleccion") {
+      btn.disabled = true;
+      try {
+        await window.Colecciones.cambiarEstado(id, !coleccion.activa);
+        await cargarColecciones();
+      } catch (err) {
+        alert("No se pudo actualizar el estado: " + err.message);
+      }
+      btn.disabled = false;
+    }
+
+    if (btn.dataset.action === "eliminar-coleccion") {
+      if (!confirm(`¿Eliminar la colección "${coleccion.nombre}"? Esta acción no se puede deshacer.`)) return;
+      btn.disabled = true;
+      try {
+        await window.Colecciones.eliminar(id);
+        await cargarColecciones();
+      } catch (err) {
+        alert("No se pudo eliminar: " + err.message);
+      }
+      btn.disabled = false;
+    }
+  });
+
+  $("coleccion-cancel-btn").addEventListener("click", resetColeccionForm);
+
+  function resetColeccionForm() {
+    editingCollectionId = null;
+    $("coleccion-form").reset();
+    $("coleccion-id").value = "";
+    $("coleccion-form-title").textContent = "Nueva colección";
+    $("coleccion-submit-btn").textContent = "Guardar colección";
+    $("coleccion-cancel-btn").style.display = "none";
+    $("coleccion-form-msg").style.display = "none";
+  }
+
+  $("coleccion-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const msg = $("coleccion-form-msg");
+    msg.style.display = "none";
+
+    const nombre = $("coleccion-nombre").value.trim();
+    const activa = $("coleccion-activa").value === "true";
+
+    if (!nombre) return;
+
+    const btn = $("coleccion-submit-btn");
+    btn.disabled = true;
+    try {
+      if (editingCollectionId) {
+        await window.Colecciones.actualizar(editingCollectionId, { nombre, activa });
+      } else {
+        await window.Colecciones.crear({ nombre, activa });
+      }
+      resetColeccionForm();
+      await cargarColecciones();
+    } catch (err) {
+      msg.textContent = err.message || "Ocurrió un error al guardar.";
+      msg.style.display = "block";
+    }
+    btn.disabled = false;
+  });
+
+  /* ============================================================== Productos */
+  async function cargarProductos() {
+    try {
+      productos = await window.Productos.listarTodos();
+      renderProductosScroll();
+    } catch (err) {
+      console.error(err);
+      $("productos-scroll").innerHTML =
+        '<div class="empty-state">Error al cargar productos. Verifica js/config.js y la conexión a Supabase.</div>';
+    }
+  }
+
+  function renderProductosScroll() {
+    const wrap = $("productos-scroll");
+    if (!productos.length) {
+      wrap.innerHTML = '<div class="empty-state">Aún no hay productos.</div>';
+      return;
+    }
+    wrap.innerHTML = productos
+      .map((p) => {
+        const img = (p.imagenes && p.imagenes[0]) || "";
+        return `
+      <div class="admin-product-card" data-id="${p.id}">
+        <button type="button" class="admin-product-card-delete" data-action="eliminar-producto" aria-label="Eliminar ${escapeHtml(
+          p.nombre
+        )}">&times;</button>
+        <div class="admin-product-card-media">
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.nombre)}" loading="lazy" />` : ""}
+        </div>
+        <span class="admin-product-card-name">${escapeHtml(p.nombre)}</span>
+      </div>`;
+      })
+      .join("");
+  }
+
+  $("productos-scroll").addEventListener("click", async (event) => {
+    const card = event.target.closest(".admin-product-card");
+    if (!card) return;
+    const id = card.dataset.id;
+    const producto = productos.find((p) => p.id === id);
+    if (!producto) return;
+
+    const deleteBtn = event.target.closest('[data-action="eliminar-producto"]');
+    if (deleteBtn) {
+      if (!confirm(`¿Eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
+      deleteBtn.disabled = true;
+      try {
+        await window.Productos.eliminar(id);
+        await cargarProductos();
+      } catch (err) {
+        alert("No se pudo eliminar: " + err.message);
+      }
+      return;
+    }
+
+    editingProductId = id;
+    $("producto-id").value = id;
+    $("producto-nombre").value = producto.nombre || "";
+    $("producto-marca").value = producto.marca || "";
+    $("producto-descripcion").value = producto.descripcion || "";
+    $("producto-precio").value = producto.precio || "";
+    $("producto-stock").value = producto.stock || 0;
+    $("producto-coleccion").value = producto.collection_id || "";
+    $("producto-etiquetas").value = (producto.etiquetas || []).join(", ");
+    $("producto-activo").value = String(producto.activo);
+    imagenesActuales = [...(producto.imagenes || [])];
+    renderThumbs();
+    $("producto-form-title").textContent = "Editar producto";
+    $("producto-submit-btn").textContent = "Actualizar producto";
+    $("producto-cancel-btn").style.display = "inline-flex";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  $("producto-cancel-btn").addEventListener("click", resetProductoForm);
+
+  function resetProductoForm() {
+    editingProductId = null;
+    imagenesActuales = [];
+    $("producto-form").reset();
+    $("producto-id").value = "";
+    $("producto-form-title").textContent = "Nuevo producto";
+    $("producto-submit-btn").textContent = "Guardar producto";
+    $("producto-cancel-btn").style.display = "none";
+    $("producto-form-msg").style.display = "none";
+    renderThumbs();
+  }
+
+  function renderThumbs() {
+    const wrap = $("producto-thumbs");
+    wrap.innerHTML = imagenesActuales
+      .map(
+        (url, i) => `
+      <div class="thumb">
+        <img src="${escapeHtml(url)}" alt="" />
+        <button type="button" data-index="${i}" title="Quitar imagen">&times;</button>
+      </div>`
+      )
+      .join("");
+  }
+
+  $("producto-thumbs").addEventListener("click", (event) => {
+    const btn = event.target.closest("button[data-index]");
+    if (!btn) return;
+    imagenesActuales.splice(Number(btn.dataset.index), 1);
+    renderThumbs();
+  });
+
+  $("producto-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const msg = $("producto-form-msg");
+    msg.style.display = "none";
+
+    const payload = {
+      nombre: $("producto-nombre").value.trim(),
+      marca: $("producto-marca").value.trim(),
+      descripcion: $("producto-descripcion").value.trim(),
+      precio: parseFloat($("producto-precio").value) || 0,
+      stock: parseInt($("producto-stock").value, 10) || 0,
+      collection_id: $("producto-coleccion").value || null,
+      etiquetas: $("producto-etiquetas")
+        .value.split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      activo: $("producto-activo").value === "true",
+      imagenes: imagenesActuales,
+    };
+
+    const btn = $("producto-submit-btn");
+    btn.disabled = true;
+    try {
+      if (editingProductId) {
+        await window.Productos.actualizar(editingProductId, payload);
+      } else {
+        await window.Productos.crear(payload);
+      }
+      resetProductoForm();
+      await cargarProductos();
+    } catch (err) {
+      msg.textContent = err.message || "Ocurrió un error al guardar.";
+      msg.style.display = "block";
+    }
+    btn.disabled = false;
+  });
+
+  /* ---------------------------------------------------------- Cloudinary */
+  const cfg = window.APP_CONFIG || {};
+  let widget = null;
+
+  if (!cfg.CLOUDINARY_CLOUD_NAME || !cfg.CLOUDINARY_UPLOAD_PRESET) {
+    $("cloudinary-hint").textContent =
+      "Configura CLOUDINARY_CLOUD_NAME y CLOUDINARY_UPLOAD_PRESET en js/config.js para habilitar la subida de imágenes.";
+  } else if (window.cloudinary) {
+    widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: cfg.CLOUDINARY_CLOUD_NAME,
+        uploadPreset: cfg.CLOUDINARY_UPLOAD_PRESET,
+        multiple: true,
+        sources: ["local", "url", "camera"],
+        maxFiles: 8,
+      },
+      (error, result) => {
+        if (error) {
+          console.error("[cloudinary]", error);
+          return;
+        }
+        if (result && result.event === "success") {
+          imagenesActuales.push(result.info.secure_url);
+          renderThumbs();
+        }
+      }
+    );
+  }
+
+  $("cloudinary-upload-btn").addEventListener("click", () => {
+    if (widget) {
+      widget.open();
+    } else {
+      alert("Cloudinary no está configurado. Completa js/config.js.");
+    }
+  });
+
+  /* ================================================================ Galería */
+  async function cargarGaleria() {
+    try {
+      galeriaImagenes = await window.Galeria.listarTodas();
+      renderGaleriaScroll();
+    } catch (err) {
+      console.error(err);
+      $("galeria-scroll").innerHTML =
+        '<div class="empty-state">Error al cargar la galería. Verifica js/config.js y la conexión a Supabase.</div>';
+    }
+  }
+
+  function renderGaleriaScroll() {
+    const wrap = $("galeria-scroll");
+    if (!galeriaImagenes.length) {
+      wrap.innerHTML = '<div class="empty-state">Aún no hay imágenes en la galería.</div>';
+      return;
+    }
+    wrap.innerHTML = galeriaImagenes
+      .map(
+        (img) => `
+      <div class="admin-product-card" data-id="${img.id}">
+        <button type="button" class="admin-product-card-delete" data-action="eliminar-galeria" aria-label="Eliminar imagen">&times;</button>
+        <div class="admin-product-card-media">
+          <img src="${escapeHtml(img.url)}" alt="" loading="lazy" />
+        </div>
+      </div>`
+      )
+      .join("");
+  }
+
+  $("galeria-scroll").addEventListener("click", async (event) => {
+    const deleteBtn = event.target.closest('[data-action="eliminar-galeria"]');
+    if (!deleteBtn) return;
+    const card = deleteBtn.closest(".admin-product-card");
+    const id = card.dataset.id;
+    if (!confirm("¿Eliminar esta imagen de la galería? Esta acción no se puede deshacer.")) return;
+    deleteBtn.disabled = true;
+    try {
+      await window.Galeria.eliminar(id);
+      await cargarGaleria();
+    } catch (err) {
+      alert("No se pudo eliminar: " + err.message);
+    }
+  });
+
+  let widgetGaleria = null;
+
+  if (cfg.CLOUDINARY_CLOUD_NAME && cfg.CLOUDINARY_UPLOAD_PRESET && window.cloudinary) {
+    widgetGaleria = window.cloudinary.createUploadWidget(
+      {
+        cloudName: cfg.CLOUDINARY_CLOUD_NAME,
+        uploadPreset: cfg.CLOUDINARY_UPLOAD_PRESET,
+        multiple: true,
+        sources: ["local", "url", "camera"],
+        maxFiles: 8,
+      },
+      (error, result) => {
+        if (error) {
+          console.error("[cloudinary galería]", error);
+          return;
+        }
+        if (result && result.event === "success") {
+          window.Galeria.agregar(result.info.secure_url)
+            .then(() => cargarGaleria())
+            .catch((err) => alert("No se pudo guardar la imagen: " + err.message));
+        }
+      }
+    );
+  } else {
+    $("cloudinary-galeria-hint").textContent =
+      "Configura CLOUDINARY_CLOUD_NAME y CLOUDINARY_UPLOAD_PRESET en js/config.js para habilitar la subida de imágenes.";
+  }
+
+  $("cloudinary-galeria-btn").addEventListener("click", () => {
+    if (widgetGaleria) {
+      widgetGaleria.open();
+    } else {
+      alert("Cloudinary no está configurado. Completa js/config.js.");
+    }
+  });
+
+  /* -------------------------------------------------------------- Utils */
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+})();
+</script>
+</body>
+</html>

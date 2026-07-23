@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Florería net.ly — Flores para cada momento</title>
+<meta name="description" content="Ramos y arreglos florales hechos a mano. Cotiza, ordena y recibe a domicilio o recoge en tienda." />
+<link rel="stylesheet" href="css/global.css" />
+</head>
+<body>
+
+<!-- ============================================================= HEADER -->
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">net.ly</a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="main-nav">
+      <div class="main-nav-inner">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li class="nav-dropdown" id="nav-dropdown">
+            <button type="button" class="nav-dropdown-toggle" id="nav-dropdown-toggle">
+              Colecciones <span class="chevron" aria-hidden="true">&#9662;</span>
+            </button>
+            <div class="nav-dropdown-panel">
+              <div class="nav-dropdown-panel-inner" id="nav-collections-panel">
+                <a href="catalogo.html">Ver todo el catálogo</a>
+              </div>
+            </div>
+          </li>
+          <li><a href="index.html#cotizar">Cotizar ramo</a></li>
+          <li><a href="index.html#ubicacion">Ubicación</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- =============================================================== HERO -->
+<section class="hero" style="background-image: url('assets/hero-florista.jpg');">
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow">Florería artesanal</span>
+      <h1>Flores que dicen lo que las palabras no alcanzan</h1>
+      <p>Ramos y arreglos hechos a mano, con flores frescas seleccionadas para cada ocasión. Entrega en Ciudad Juárez o recoge en tienda.</p>
+      <div class="hero-actions">
+        <a href="catalogo.html" class="btn btn-primary">Ver catálogo</a>
+        <a href="#cotizar" class="btn btn-light">Cotizar un ramo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================== ARREGLOS RECIENTES -->
+<section class="section" id="arreglos-recientes">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Nuestro trabajo</span>
+      <h2>Arreglos recientes</h2>
+      <p>Una muestra de los ramos que preparamos cada semana con flores de temporada.</p>
+    </div>
+  </div>
+  <div class="gallery-track-wrap">
+    <div class="gallery-track" id="gallery-track">
+      <div class="gallery-card"><div class="loader" style="margin: 150px auto;"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ GALERÍA -->
+<section class="section section--alt" id="galeria">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Momentos</span>
+      <h2>Galería</h2>
+      <p>Un vistazo a nuestro taller, entregas y arreglos favoritos.</p>
+    </div>
+    <div class="masonry-gallery" id="masonry-gallery">
+      <div class="empty-state"><span class="loader"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ COTIZAR -->
+<section class="section section--alt" id="cotizar">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Personalizado</span>
+      <h2>Cotiza tu ramo ideal</h2>
+      <p>Cuéntanos qué tienes en mente y te contactamos por WhatsApp con una propuesta.</p>
+    </div>
+
+    <form id="cotizar-form" style="max-width: 560px; margin-inline: auto;" novalidate>
+      <div class="form-field">
+        <label for="cotizar-nombre">Nombre completo</label>
+        <input type="text" id="cotizar-nombre" required />
+      </div>
+      <div class="form-field">
+        <label for="cotizar-telefono">Teléfono</label>
+        <input type="tel" id="cotizar-telefono" required />
+      </div>
+      <div class="form-field">
+        <label for="cotizar-descripcion">Describe el ramo que buscas</label>
+        <textarea id="cotizar-descripcion" required placeholder="Ej. Ramo de rosas rojas y blancas para aniversario, presupuesto aproximado $800"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Enviar cotización por WhatsApp</button>
+    </form>
+  </div>
+</section>
+
+<!-- ========================================================== UBICACIÓN -->
+<section class="section" id="ubicacion">
+  <div class="container grid" style="grid-template-columns: 1fr; gap: var(--space-6);">
+    <div class="section-head" style="margin-bottom: 0;">
+      <span class="eyebrow">Visítanos</span>
+      <h2>Ubicación</h2>
+    </div>
+    <div class="grid" style="grid-template-columns: 1fr; gap: var(--space-5);">
+      <div class="location-info">
+        <p><strong>Dirección:</strong> <span id="location-address">Ciudad Juárez, Chihuahua, México</span></p>
+        <p><strong>Teléfono:</strong> +52 656 8596503</p>
+        <p><strong>Correo:</strong> iygd505@gmail.com</p>
+      </div>
+      <iframe
+        class="map-embed"
+        id="map-embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen
+        title="Ubicación de la florería"
+      ></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="grid footer-grid">
+      <div>
+        <h4>net.ly</h4>
+        <p>Flores frescas y arreglos hechos a mano para cada momento especial.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>+52 656 8596503</p>
+        <p>iygd505@gmail.com</p>
+      </div>
+      <div>
+        <h4>Síguenos</h4>
+        <div class="social-links" id="social-links"></div>
+      </div>
+    </div>
+    <p class="footer-bottom">
+      © <span id="current-year"></span> net.ly. Todos los derechos reservados. ·
+      <a href="admin/index.html">Admin</a>
+    </p>
+  </div>
+</footer>
+
+<div class="lightbox-backdrop" id="lightbox">
+  <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Cerrar imagen">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/colecciones.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/galeria.js"></script>
+<script src="js/whatsapp.js"></script>
+<script>
+(function () {
+  const cfg = window.APP_CONFIG || {};
+  document.getElementById("current-year").textContent = new Date().getFullYear();
+  document.getElementById("location-address").textContent = cfg.BUSINESS_ADDRESS || "";
+
+  /* ------------------------------------------------------------ Mapa */
+  const mapFrame = document.getElementById("map-embed");
+  const query = encodeURIComponent(cfg.BUSINESS_ADDRESS || "Ciudad Juárez, Chihuahua, México");
+  mapFrame.src = `https://www.google.com/maps?q=${query}&output=embed`;
+
+  /* ------------------------------------------------------- Redes sociales */
+  const socialLinks = document.getElementById("social-links");
+  const redes = [
+    { url: cfg.SOCIAL_INSTAGRAM, label: "Instagram", icon: "IG" },
+    { url: cfg.SOCIAL_FACEBOOK, label: "Facebook", icon: "FB" },
+    { url: cfg.SOCIAL_TIKTOK, label: "TikTok", icon: "TT" },
+  ].filter((r) => r.url);
+  socialLinks.innerHTML = redes
+    .map((r) => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" aria-label="${r.label}">${r.icon}</a>`)
+    .join("");
+
+  /* ----------------------------------------------------------------- Nav */
+  const navToggle = document.getElementById("nav-toggle");
+  const mainNav = document.getElementById("main-nav");
+
+  function setNavOpen(open) {
+    mainNav.classList.toggle("is-open", open);
+    navToggle.classList.toggle("is-active", open);
+    navToggle.setAttribute("aria-expanded", String(open));
+  }
+
+  navToggle.addEventListener("click", () => {
+    setNavOpen(!mainNav.classList.contains("is-open"));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!mainNav.classList.contains("is-open")) return;
+    if (mainNav.contains(event.target) || navToggle.contains(event.target)) return;
+    setNavOpen(false);
+  });
+
+  const navDropdown = document.getElementById("nav-dropdown");
+  document.getElementById("nav-dropdown-toggle").addEventListener("click", () => {
+    navDropdown.classList.toggle("is-open");
+  });
+
+  /* ---------------------------------------------------- Colecciones nav */
+  async function cargarColeccionesNav() {
+    const panel = document.getElementById("nav-collections-panel");
+    try {
+      const colecciones = await window.Colecciones.listarActivas();
+      if (!colecciones.length) return;
+      const links = colecciones
+        .map((c) => `<a href="catalogo.html?coleccion=${encodeURIComponent(c.slug)}">${escapeHtml(c.nombre)}</a>`)
+        .join("");
+      panel.innerHTML = links + panel.innerHTML;
+    } catch (err) {
+      console.error("[index] error cargando colecciones:", err);
+    }
+  }
+
+  /* --------------------------------------------------------- Galería */
+  const MAX_GALERIA = 6;
+
+  async function cargarGaleria() {
+    const track = document.getElementById("gallery-track");
+    try {
+      const productos = await window.Productos.listarActivos();
+      const conImagen = productos.filter((p) => p.imagenes && p.imagenes.length).slice(0, MAX_GALERIA);
+      if (!conImagen.length) {
+        track.innerHTML = '<p style="padding: 0 var(--space-4); color: var(--color-text-muted);">Pronto compartiremos fotos de nuestros arreglos.</p>';
+        return;
+      }
+      const cards = conImagen
+        .map(
+          (p) => `
+        <a class="gallery-card" href="producto.html?id=${encodeURIComponent(p.id)}">
+          <img src="${escapeHtml(p.imagenes[0])}" alt="${escapeHtml(p.nombre)}" loading="lazy" />
+          <span class="gallery-card-caption">${escapeHtml(p.nombre)}</span>
+        </a>`
+        )
+        .join("");
+      // En pantallas táctiles el scroll es manual (sin animación), así que no hace
+      // falta duplicar el contenido; en desktop se duplica para el loop infinito.
+      const esTactil = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+      track.innerHTML = esTactil ? cards : cards + cards;
+    } catch (err) {
+      console.error("[index] error cargando galería:", err);
+      track.innerHTML = '<p style="padding: 0 var(--space-4); color: var(--color-text-muted);">No se pudo cargar la galería.</p>';
+    }
+  }
+
+  /* --------------------------------------------------- Galería (fotos) */
+  const MAX_GALERIA_FOTOS = 24;
+
+  async function cargarGaleriaFotos() {
+    const grid = document.getElementById("masonry-gallery");
+    try {
+      const imagenes = await window.Galeria.listarTodas();
+      if (!imagenes.length) {
+        grid.innerHTML =
+          '<p style="text-align: center; color: var(--color-text-muted);">Pronto compartiremos más fotos aquí.</p>';
+        return;
+      }
+      grid.innerHTML = imagenes
+        .slice(0, MAX_GALERIA_FOTOS)
+        .map(
+          (img) => `
+        <div class="masonry-item">
+          <img src="${escapeHtml(img.url)}" alt="Galería net.ly" loading="lazy" />
+        </div>`
+        )
+        .join("");
+    } catch (err) {
+      console.error("[index] error cargando galería de fotos:", err);
+      grid.innerHTML =
+        '<p style="text-align: center; color: var(--color-text-muted);">No se pudo cargar la galería.</p>';
+    }
+  }
+
+  /* ------------------------------------------------------------ Lightbox */
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+
+  function abrirLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || "";
+    lightbox.classList.add("is-open");
+  }
+
+  function cerrarLightbox() {
+    lightbox.classList.remove("is-open");
+    lightboxImg.src = "";
+  }
+
+  document.getElementById("masonry-gallery").addEventListener("click", (event) => {
+    const img = event.target.closest(".masonry-item img");
+    if (img) abrirLightbox(img.src, img.alt);
+  });
+
+  document.getElementById("lightbox-close").addEventListener("click", cerrarLightbox);
+  lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) cerrarLightbox();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") cerrarLightbox();
+  });
+
+  /* --------------------------------------------------------- Cotizar */
+  document.getElementById("cotizar-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const nombre = document.getElementById("cotizar-nombre").value.trim();
+    const telefono = document.getElementById("cotizar-telefono").value.trim();
+    const descripcion = document.getElementById("cotizar-descripcion").value.trim();
+    if (!nombre || !telefono || !descripcion) return;
+    const mensaje = window.WhatsApp.mensajeCotizacion({ nombre, telefono, descripcion });
+    window.WhatsApp.abrir(mensaje);
+  });
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  cargarColeccionesNav();
+  cargarGaleria();
+  cargarGaleriaFotos();
+})();
+</script>
+</body>
+</html>
