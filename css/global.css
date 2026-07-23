@@ -898,8 +898,12 @@ textarea {
    -------------------------------------------------------------------------- */
 .site-footer {
   background: var(--color-charcoal);
-  color: var(--color-cream);
+  color: var(--color-white);
   padding-block: var(--space-7) var(--space-5);
+}
+
+.site-footer p {
+  color: var(--color-white);
 }
 
 .site-footer h4 {
@@ -909,12 +913,12 @@ textarea {
 }
 
 .site-footer a {
-  color: var(--color-gray-light);
-  transition: color var(--transition);
+  color: var(--color-white);
+  transition: opacity var(--transition);
 }
 
 .site-footer a:hover {
-  color: var(--color-white);
+  opacity: 0.75;
 }
 
 .footer-grid {
@@ -948,7 +952,7 @@ textarea {
 
 .footer-bottom {
   font-size: 0.85rem;
-  color: var(--color-gray-light);
+  color: var(--color-white);
   text-align: center;
 }
 
