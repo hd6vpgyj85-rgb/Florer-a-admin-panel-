@@ -155,25 +155,12 @@
       </div>
 
       <div class="card">
-        <h3 style="margin-bottom: var(--space-4);">Todos los productos</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Imagen</th>
-                <th>Nombre</th>
-                <th>Marca</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Colección</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="productos-tbody">
-              <tr><td colspan="8"><span class="loader"></span></td></tr>
-            </tbody>
-          </table>
+        <h3 style="margin-bottom: var(--space-2);">Todos los productos</h3>
+        <p class="hint" style="margin-bottom: var(--space-4);">Desliza para ver todos. Click en una tarjeta para editarla.</p>
+        <div class="admin-products-scroll-wrap">
+          <div class="admin-products-scroll" id="productos-scroll">
+            <span class="loader"></span>
+          </div>
         </div>
       </div>
     </section>
@@ -368,88 +355,73 @@
   async function cargarProductos() {
     try {
       productos = await window.Productos.listarTodos();
-      renderProductosTabla();
+      renderProductosScroll();
     } catch (err) {
       console.error(err);
-      $("productos-tbody").innerHTML =
-        '<tr><td colspan="8">Error al cargar productos. Verifica js/config.js y la conexión a Supabase.</td></tr>';
+      $("productos-scroll").innerHTML =
+        '<div class="empty-state">Error al cargar productos. Verifica js/config.js y la conexión a Supabase.</div>';
     }
   }
 
-  function nombreColeccion(id) {
-    const c = colecciones.find((col) => col.id === id);
-    return c ? c.nombre : "—";
-  }
-
-  function renderProductosTabla() {
-    const tbody = $("productos-tbody");
+  function renderProductosScroll() {
+    const wrap = $("productos-scroll");
     if (!productos.length) {
-      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">Aún no hay productos.</div></td></tr>';
+      wrap.innerHTML = '<div class="empty-state">Aún no hay productos.</div>';
       return;
     }
-    tbody.innerHTML = productos
+    wrap.innerHTML = productos
       .map((p) => {
         const img = (p.imagenes && p.imagenes[0]) || "";
         return `
-      <tr data-id="${p.id}">
-        <td>${
-          img
-            ? `<div class="thumb" style="width:48px;height:48px;"><img src="${escapeHtml(img)}" alt=""></div>`
-            : "—"
-        }</td>
-        <td>${escapeHtml(p.nombre)}</td>
-        <td>${escapeHtml(p.marca || "—")}</td>
-        <td>${window.WhatsApp.formatearPrecio(p.precio)}</td>
-        <td>${p.stock}</td>
-        <td>${escapeHtml(nombreColeccion(p.collection_id))}</td>
-        <td><span class="status-pill ${p.activo ? "on" : "off"}">${p.activo ? "Activo" : "Inactivo"}</span></td>
-        <td class="actions">
-          <button type="button" class="btn btn-sm btn-outline" data-action="editar-producto">Editar</button>
-          <button type="button" class="btn btn-sm btn-danger" data-action="eliminar-producto">Eliminar</button>
-        </td>
-      </tr>`;
+      <div class="admin-product-card" data-id="${p.id}">
+        <button type="button" class="admin-product-card-delete" data-action="eliminar-producto" aria-label="Eliminar ${escapeHtml(
+          p.nombre
+        )}">&times;</button>
+        <div class="admin-product-card-media">
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.nombre)}" loading="lazy" />` : ""}
+        </div>
+        <span class="admin-product-card-name">${escapeHtml(p.nombre)}</span>
+      </div>`;
       })
       .join("");
   }
 
-  $("productos-tbody").addEventListener("click", async (event) => {
-    const btn = event.target.closest("button[data-action]");
-    if (!btn) return;
-    const row = btn.closest("tr");
-    const id = row.dataset.id;
+  $("productos-scroll").addEventListener("click", async (event) => {
+    const card = event.target.closest(".admin-product-card");
+    if (!card) return;
+    const id = card.dataset.id;
     const producto = productos.find((p) => p.id === id);
     if (!producto) return;
 
-    if (btn.dataset.action === "editar-producto") {
-      editingProductId = id;
-      $("producto-id").value = id;
-      $("producto-nombre").value = producto.nombre || "";
-      $("producto-marca").value = producto.marca || "";
-      $("producto-descripcion").value = producto.descripcion || "";
-      $("producto-precio").value = producto.precio || "";
-      $("producto-stock").value = producto.stock || 0;
-      $("producto-coleccion").value = producto.collection_id || "";
-      $("producto-etiquetas").value = (producto.etiquetas || []).join(", ");
-      $("producto-activo").value = String(producto.activo);
-      imagenesActuales = [...(producto.imagenes || [])];
-      renderThumbs();
-      $("producto-form-title").textContent = "Editar producto";
-      $("producto-submit-btn").textContent = "Actualizar producto";
-      $("producto-cancel-btn").style.display = "inline-flex";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    if (btn.dataset.action === "eliminar-producto") {
+    const deleteBtn = event.target.closest('[data-action="eliminar-producto"]');
+    if (deleteBtn) {
       if (!confirm(`¿Eliminar el producto "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
-      btn.disabled = true;
+      deleteBtn.disabled = true;
       try {
         await window.Productos.eliminar(id);
         await cargarProductos();
       } catch (err) {
         alert("No se pudo eliminar: " + err.message);
       }
-      btn.disabled = false;
+      return;
     }
+
+    editingProductId = id;
+    $("producto-id").value = id;
+    $("producto-nombre").value = producto.nombre || "";
+    $("producto-marca").value = producto.marca || "";
+    $("producto-descripcion").value = producto.descripcion || "";
+    $("producto-precio").value = producto.precio || "";
+    $("producto-stock").value = producto.stock || 0;
+    $("producto-coleccion").value = producto.collection_id || "";
+    $("producto-etiquetas").value = (producto.etiquetas || []).join(", ");
+    $("producto-activo").value = String(producto.activo);
+    imagenesActuales = [...(producto.imagenes || [])];
+    renderThumbs();
+    $("producto-form-title").textContent = "Editar producto";
+    $("producto-submit-btn").textContent = "Actualizar producto";
+    $("producto-cancel-btn").style.display = "inline-flex";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   $("producto-cancel-btn").addEventListener("click", resetProductoForm);
