@@ -11,15 +11,15 @@
    1. Tokens
    -------------------------------------------------------------------------- */
 :root {
-  /* Neutros (crema cálido y madera, tomados de la fotografía de referencia) */
+  /* Neutros: escala de rosas, de rosa oscuro (texto) a rosa muy pálido (fondos) */
   --color-white: #ffffff;
-  --color-cream: #faf5f0;
-  --color-cream-dark: #f3e6da;
-  --color-charcoal: #453a33;
-  --color-charcoal-soft: #6b5c50;
-  --color-gray: #a89685;
-  --color-gray-light: #ecdfd2;
-  --color-border: #efe1d4;
+  --color-cream: #fdf5f6;
+  --color-cream-dark: #f7e3e7;
+  --color-charcoal: #4a2c34;
+  --color-charcoal-soft: #7d5560;
+  --color-gray: #946b76;
+  --color-gray-light: #f0d8dd;
+  --color-border: #f3dde2;
 
   /* Acentos pastel (rosas/peonías y follaje de eucalipto) */
   --color-moss: #a3b791;
@@ -60,8 +60,8 @@
   --container-max: 1200px;
   --radius-sm: 4px;
   --radius-md: 8px;
-  --shadow-sm: 0 1px 3px rgba(69, 58, 51, 0.08);
-  --shadow-md: 0 8px 24px rgba(69, 58, 51, 0.1);
+  --shadow-sm: 0 1px 3px rgba(74, 44, 52, 0.08);
+  --shadow-md: 0 8px 24px rgba(74, 44, 52, 0.1);
   --transition: 0.25s ease;
 }
 
@@ -567,7 +567,7 @@ p {
   display: flex;
   align-items: center;
   color: var(--color-white);
-  background: linear-gradient(rgba(40, 33, 29, 0.35), rgba(40, 33, 29, 0.55)), var(--color-charcoal);
+  background: linear-gradient(rgba(38, 21, 26, 0.35), rgba(38, 21, 26, 0.55)), var(--color-charcoal);
   background-size: cover;
   background-position: center;
 }
@@ -671,7 +671,7 @@ p {
   position: absolute;
   inset: auto 0 0 0;
   padding: var(--space-3);
-  background: linear-gradient(transparent, rgba(40, 33, 29, 0.75));
+  background: linear-gradient(transparent, rgba(38, 21, 26, 0.75));
   color: var(--color-white);
   font-size: 0.9rem;
   font-weight: 500;
@@ -1260,7 +1260,7 @@ textarea {
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: rgba(69, 58, 51, 0.75);
+  background: rgba(74, 44, 52, 0.75);
   color: var(--color-white);
   font-size: 1rem;
   line-height: 1;
@@ -1344,7 +1344,7 @@ td.actions {
   position: absolute;
   top: 2px;
   right: 2px;
-  background: rgba(69, 58, 51, 0.75);
+  background: rgba(74, 44, 52, 0.75);
   color: var(--color-white);
   border: none;
   border-radius: 50%;
@@ -1358,7 +1358,7 @@ td.actions {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(40, 33, 29, 0.5);
+  background: rgba(38, 21, 26, 0.5);
   display: none;
   align-items: center;
   justify-content: center;
@@ -1461,7 +1461,7 @@ td.actions {
 .lightbox-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(40, 33, 29, 0.92);
+  background: rgba(38, 21, 26, 0.92);
   display: none;
   align-items: center;
   justify-content: center;
