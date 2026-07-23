@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Producto — Florería net.ly</title>
+<link rel="stylesheet" href="css/global.css" />
+</head>
+<body>
+
+<!-- ============================================================= HEADER -->
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">net.ly</a>
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="main-nav" id="main-nav">
+      <button type="button" class="nav-close" id="nav-close" aria-label="Cerrar menú">&times;</button>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li class="nav-dropdown" id="nav-dropdown">
+          <button type="button" class="nav-dropdown-toggle" id="nav-dropdown-toggle">
+            Colecciones <span aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="nav-dropdown-panel" id="nav-collections-panel">
+            <a href="catalogo.html">Ver todo el catálogo</a>
+          </div>
+        </li>
+        <li><a href="index.html#cotizar">Cotizar ramo</a></li>
+        <li><a href="index.html#ubicacion">Ubicación</a></li>
+      </ul>
+    </nav>
+    <div class="nav-scrim" id="nav-scrim"></div>
+  </div>
+</header>
+
+<!-- ============================================================ PRODUCTO -->
+<section class="section">
+  <div class="container">
+    <p style="margin-bottom: var(--space-5);"><a href="catalogo.html" style="color: var(--color-text-muted);">&larr; Volver al catálogo</a></p>
+
+    <div id="producto-contenido">
+      <div class="empty-state"><span class="loader"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="grid footer-grid">
+      <div>
+        <h4>net.ly</h4>
+        <p>Flores frescas y arreglos hechos a mano para cada momento especial.</p>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <p>+52 656 8596503</p>
+        <p>iygd505@gmail.com</p>
+      </div>
+      <div>
+        <h4>Síguenos</h4>
+        <div class="social-links" id="social-links"></div>
+      </div>
+    </div>
+    <p class="footer-bottom">© <span id="current-year"></span> net.ly. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/colecciones.js"></script>
+<script src="js/productos.js"></script>
+<script src="js/whatsapp.js"></script>
+<script>
+(function () {
+  const cfg = window.APP_CONFIG || {};
+  document.getElementById("current-year").textContent = new Date().getFullYear();
+
+  const socialLinks = document.getElementById("social-links");
+  const redes = [
+    { url: cfg.SOCIAL_INSTAGRAM, label: "Instagram", icon: "IG" },
+    { url: cfg.SOCIAL_FACEBOOK, label: "Facebook", icon: "FB" },
+    { url: cfg.SOCIAL_TIKTOK, label: "TikTok", icon: "TT" },
+  ].filter((r) => r.url);
+  socialLinks.innerHTML = redes
+    .map((r) => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" aria-label="${r.label}">${r.icon}</a>`)
+    .join("");
+
+  /* ----------------------------------------------------------------- Nav */
+  const navToggle = document.getElementById("nav-toggle");
+  const navClose = document.getElementById("nav-close");
+  const mainNav = document.getElementById("main-nav");
+  const navScrim = document.getElementById("nav-scrim");
+  function openNav() {
+    mainNav.classList.add("is-open");
+    navScrim.classList.add("is-open");
+  }
+  function closeNav() {
+    mainNav.classList.remove("is-open");
+    navScrim.classList.remove("is-open");
+  }
+  navToggle.addEventListener("click", openNav);
+  navClose.addEventListener("click", closeNav);
+  navScrim.addEventListener("click", closeNav);
+  const navDropdown = document.getElementById("nav-dropdown");
+  document.getElementById("nav-dropdown-toggle").addEventListener("click", () => {
+    navDropdown.classList.toggle("is-open");
+  });
+
+  async function cargarColeccionesNav() {
+    const panel = document.getElementById("nav-collections-panel");
+    try {
+      const activas = await window.Colecciones.listarActivas();
+      if (!activas.length) return;
+      const links = activas
+        .map((c) => `<a href="catalogo.html?coleccion=${encodeURIComponent(c.slug)}">${escapeHtml(c.nombre)}</a>`)
+        .join("");
+      panel.innerHTML = links + panel.innerHTML;
+    } catch (err) {
+      console.error("[producto] error cargando colecciones (nav):", err);
+    }
+  }
+
+  /* --------------------------------------------------------- Producto */
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  let producto = null;
+  let imagenActivaIndex = 0;
+
+  function renderProducto() {
+    const contenido = document.getElementById("producto-contenido");
+    const imagenes = producto.imagenes && producto.imagenes.length ? producto.imagenes : [];
+    const agotado = producto.stock <= 0;
+
+    const thumbs = imagenes
+      .map(
+        (img, i) => `
+      <button type="button" data-index="${i}" class="${i === imagenActivaIndex ? "is-active" : ""}">
+        <img src="${escapeHtml(img)}" alt="" />
+      </button>`
+      )
+      .join("");
+
+    const etiquetas = (producto.etiquetas || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+
+    contenido.innerHTML = `
+      <div class="grid product-detail">
+        <div>
+          <div class="product-gallery-main">
+            ${
+              imagenes.length
+                ? `<img id="imagen-principal" src="${escapeHtml(imagenes[imagenActivaIndex])}" alt="${escapeHtml(producto.nombre)}" />`
+                : ""
+            }
+          </div>
+          ${imagenes.length > 1 ? `<div class="product-gallery-thumbs">${thumbs}</div>` : ""}
+        </div>
+        <div class="product-info">
+          ${producto.marca ? `<span class="brand">${escapeHtml(producto.marca)}</span>` : ""}
+          <h1>${escapeHtml(producto.nombre)}</h1>
+          <div class="price">${window.WhatsApp.formatearPrecio(producto.precio)}</div>
+          <div class="tag-list" style="margin-bottom: var(--space-4);">${etiquetas}</div>
+          <p class="description">${escapeHtml(producto.descripcion || "")}</p>
+          <p style="margin-bottom: var(--space-4); color: var(--color-text-muted);">
+            ${agotado ? "Sin stock disponible" : `Stock disponible: ${producto.stock}`}
+          </p>
+          <a
+            href="checkout.html?id=${encodeURIComponent(producto.id)}"
+            class="btn btn-block ${agotado ? "is-disabled" : "btn-primary"}"
+            ${agotado ? "aria-disabled='true' onclick='return false;'" : ""}
+          >
+            ${agotado ? "Agotado" : "Comprar ahora"}
+          </a>
+        </div>
+      </div>`;
+
+    contenido.querySelectorAll(".product-gallery-thumbs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        imagenActivaIndex = Number(btn.dataset.index);
+        renderProducto();
+      });
+    });
+  }
+
+  async function cargarProducto() {
+    const contenido = document.getElementById("producto-contenido");
+    if (!id) {
+      contenido.innerHTML = '<div class="empty-state">No se especificó ningún producto.</div>';
+      return;
+    }
+    try {
+      producto = await window.Productos.obtenerPorId(id);
+      if (!producto) {
+        contenido.innerHTML = '<div class="empty-state">Este producto no existe o ya no está disponible.</div>';
+        return;
+      }
+      renderProducto();
+    } catch (err) {
+      console.error("[producto] error cargando producto:", err);
+      contenido.innerHTML =
+        '<div class="empty-state">No se pudo cargar el producto. Verifica js/config.js y la conexión a Supabase.</div>';
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  cargarColeccionesNav();
+  cargarProducto();
+})();
+</script>
+</body>
+</html>

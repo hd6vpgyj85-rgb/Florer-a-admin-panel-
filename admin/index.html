@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Iniciar sesión — Panel de administración</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="stylesheet" href="../css/global.css" />
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Panel de administración</h1>
+    <p class="subtitle">Inicia sesión para gestionar colecciones y productos.</p>
+
+    <div id="auth-error" class="form-message is-error" style="display: none"></div>
+
+    <form id="login-form" novalidate>
+      <div class="form-field">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" autocomplete="username" required />
+      </div>
+      <div class="form-field">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">
+        <span id="submit-label">Ingresar</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/supabase.js"></script>
+<script src="../js/auth.js"></script>
+<script>
+  const form = document.getElementById("login-form");
+  const errorBox = document.getElementById("auth-error");
+  const submitBtn = document.getElementById("submit-btn");
+  const submitLabel = document.getElementById("submit-label");
+
+  function mostrarError(mensaje) {
+    errorBox.textContent = mensaje;
+    errorBox.style.display = "block";
+  }
+
+  function ocultarError() {
+    errorBox.style.display = "none";
+  }
+
+  (async function init() {
+    try {
+      await window.Auth.redirectIfAuthenticated("dashboard.html");
+    } catch (err) {
+      console.error(err);
+    }
+  })();
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    ocultarError();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    submitBtn.disabled = true;
+    submitLabel.textContent = "Ingresando...";
+
+    try {
+      await window.Auth.signIn(email, password);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      console.error(err);
+      const msg =
+        err && err.message === "Failed to fetch"
+          ? "No se pudo conectar con Supabase. Verifica js/config.js."
+          : (err && err.message) || "No se pudo iniciar sesión. Verifica tus datos.";
+      mostrarError(msg);
+      submitBtn.disabled = false;
+      submitLabel.textContent = "Ingresar";
+    }
+  });
+</script>
+</body>
+</html>
